@@ -640,6 +640,10 @@
         [self.view setNeedsLayout];
     }
     
+    if (_gridController) {
+        [_gridController.collectionView reloadData];
+    }
+
     _toolbar.hidden = _gridController ? true : false;
 }
 
