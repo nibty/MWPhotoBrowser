@@ -448,7 +448,7 @@
     UINavigationBar *navBar = self.navigationController.navigationBar;
     navBar.tintColor = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7") ? [UIColor whiteColor] : nil;
     if ([navBar respondsToSelector:@selector(setBarTintColor:)]) {
-        navBar.barTintColor = nil;
+        navBar.barTintColor = [UIColor colorWithRed: 100/255.0f green: 162/255.0f blue: 244/255.0f alpha: 0.1f];
         navBar.shadowImage = nil;
     }
     navBar.translucent = YES;
