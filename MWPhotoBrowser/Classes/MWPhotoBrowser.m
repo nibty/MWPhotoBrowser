@@ -148,6 +148,8 @@
 	self.view.backgroundColor = [UIColor blackColor];
     self.view.clipsToBounds = YES;
 	
+    [[self navigationController] setNavigationBarHidden: NO animated: NO];
+    
 	// Setup paging scrolling view
 	CGRect pagingScrollViewFrame = [self frameForPagingScrollView];
 	_pagingScrollView = [[UIScrollView alloc] initWithFrame:pagingScrollViewFrame];
@@ -162,7 +164,7 @@
 	
     // Toolbar
     _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:self.interfaceOrientation]];
-    _toolbar.tintColor = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7") ? [UIColor whiteColor] : nil;
+    _toolbar.tintColor = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7") ? [UIColor blackColor] : nil;
     if ([_toolbar respondsToSelector:@selector(setBarTintColor:)]) {
         _toolbar.barTintColor = nil;
     }
@@ -170,7 +172,7 @@
         [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
         [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
     }
-    _toolbar.barStyle = UIBarStyleBlackTranslucent;
+    //_toolbar.barStyle = UIBarStyleBlackTranslucent;
     _toolbar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
     
     // Toolbar Items
@@ -184,6 +186,7 @@
         _previousButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:[NSString stringWithFormat:arrowPathFormat, @"Left"]] style:UIBarButtonItemStylePlain target:self action:@selector(gotoPreviousPage)];
         _nextButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:[NSString stringWithFormat:arrowPathFormat, @"Right"]] style:UIBarButtonItemStylePlain target:self action:@selector(gotoNextPage)];
     }
+    
     if (self.displayActionButton) {
         _actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonPressed:)];
     }
@@ -254,10 +257,14 @@
 
     // Left button - Grid
     if (_enableGrid) {
-        hasItems = YES;
+        //hasItems = YES;
         NSString *buttonName = @"UIBarButtonItemGrid";
         if (SYSTEM_VERSION_LESS_THAN(@"7")) buttonName = @"UIBarButtonItemGridiOS6";
-        [items addObject:[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:[NSString stringWithFormat:@"MWPhotoBrowser.bundle/images/%@.png", buttonName]] style:UIBarButtonItemStylePlain target:self action:@selector(showGridAnimated)]];
+        //UIImage *image = [[UIImage imageNamed:buttonName] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+        //UIBarButtonItem *button = [[UIBarButtonItem alloc] initWithImage:image style:UIBarButtonItemStylePlain target:self action:@selector(showGridAnimated)];
+        //self.navigationItem.leftBarButtonItem = button;
+        
+        //[items addObject:[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:[NSString stringWithFormat:@"MWPhotoBrowser.bundle/images/%@.png", buttonName]] style:UIBarButtonItemStylePlain target:self action:@selector(showGridAnimated)]];
     } else {
         [items addObject:fixedSpace];
     }
@@ -283,7 +290,7 @@
             self.navigationItem.rightBarButtonItem = _actionButton;
         [items addObject:fixedSpace];
     }
-
+    
     // Toolbar visibility
     [_toolbar setItems:items];
     BOOL hideToolbar = YES;
@@ -293,10 +300,11 @@
             break;
         }
     }
+    
     if (hideToolbar) {
         [_toolbar removeFromSuperview];
     } else {
-        [self.view addSubview:_toolbar];
+        //[self.view addSubview:_toolbar];
     }
     
     // Update nav
@@ -445,7 +453,10 @@
 
 - (void)setNavBarAppearance:(BOOL)animated {
     [self.navigationController setNavigationBarHidden:NO animated:animated];
+    self.navigationController.hidesBarsOnSwipe = NO;
+
     UINavigationBar *navBar = self.navigationController.navigationBar;
+    
     navBar.tintColor = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7") ? [UIColor whiteColor] : nil;
     if ([navBar respondsToSelector:@selector(setBarTintColor:)]) {
         navBar.barTintColor = [UIColor colorWithRed: 100/255.0f green: 162/255.0f blue: 244/255.0f alpha: 0.1f];
