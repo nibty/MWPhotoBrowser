@@ -169,6 +169,7 @@
     } else {
         [photo loadUnderlyingImageAndNotify];
     }
+    
     return cell;
 }
 

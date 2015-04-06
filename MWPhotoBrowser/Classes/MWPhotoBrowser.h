@@ -51,6 +51,8 @@
 @property (nonatomic) BOOL enableSwipeToDismiss;
 @property (nonatomic) BOOL startOnGrid;
 @property (nonatomic) NSUInteger delayToHideElements;
+@property (nonatomic) BOOL autoHideElements;
+@property (nonatomic) BOOL hideControlsOnSwipe;
 @property (nonatomic, readonly) NSUInteger currentIndex;
 @property (nonatomic) NSUInteger numberOfPhotos;
 
