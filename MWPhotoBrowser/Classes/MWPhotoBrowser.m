@@ -66,6 +66,7 @@
     _currentPageIndex = 0;
     _previousPageIndex = NSUIntegerMax;
     _displayActionButton = YES;
+    _displayCommentsButton = YES;
     _displayNavArrows = NO;
     _zoomPhotosToFill = YES;
     _performingLayout = NO; // Reset on view did appear
@@ -83,6 +84,7 @@
     _thumbPhotos = [[NSMutableArray alloc] init];
     _currentGridContentOffset = CGPointMake(0, CGFLOAT_MAX);
     _didSavePreviousStateOfNavBar = NO;
+    _hideTitle = YES;
     if ([self respondsToSelector:@selector(automaticallyAdjustsScrollViewInsets)]){
         self.automaticallyAdjustsScrollViewInsets = NO;
     }
@@ -166,7 +168,7 @@
 	
     // Toolbar
     _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:self.interfaceOrientation]];
-    _toolbar.tintColor = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7") ? [UIColor blackColor] : nil;
+    _toolbar.tintColor = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7") ? [UIColor whiteColor] : nil;
     if ([_toolbar respondsToSelector:@selector(setBarTintColor:)]) {
         _toolbar.barTintColor = nil;
     }
@@ -174,7 +176,7 @@
         [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
         [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
     }
-    //_toolbar.barStyle = UIBarStyleBlackTranslucent;
+    _toolbar.barStyle = UIBarStyleBlackTranslucent;
     _toolbar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
     
     // Toolbar Items
@@ -190,7 +192,18 @@
     }
     
     if (self.displayActionButton) {
-        _actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonPressed:)];
+        NSString *actionButton = @"UIBarButtonItemShare";
+        _actionButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:[NSString stringWithFormat:@"MWPhotoBrowser.bundle/images/%@.png", actionButton]] style:UIBarButtonItemStylePlain target:self action:@selector(actionButtonPressed:)];
+    }
+    
+    if (self.displayCommentsButton) {
+        NSString *commentsButton = @"UIBarButtonItemComments";
+        UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+        button.frame = CGRectMake(0, 0, 25, 25);
+        UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"MWPhotoBrowser.bundle/images/%@.png", commentsButton]];
+        [button setImage:image forState:UIControlStateNormal];
+        [button addTarget:self action:@selector(commentsButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+        _commentsButton = [[UIBarButtonItem alloc] initWithCustomView:button];
     }
     
     // Update
@@ -259,9 +272,11 @@
 
     // Left button - Grid
     if (_enableGrid) {
-        //hasItems = YES;
+        hasItems = YES;
         NSString *buttonName = @"UIBarButtonItemGrid";
         if (SYSTEM_VERSION_LESS_THAN(@"7")) buttonName = @"UIBarButtonItemGridiOS6";
+        [items addObject:[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:[NSString stringWithFormat:@"MWPhotoBrowser.bundle/images/%@.png", buttonName]] style:UIBarButtonItemStylePlain target:self action:@selector(showGridAnimated)]];
+        
         //UIImage *image = [[UIImage imageNamed:buttonName] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
         //UIBarButtonItem *button = [[UIBarButtonItem alloc] initWithImage:image style:UIBarButtonItemStylePlain target:self action:@selector(showGridAnimated)];
         //self.navigationItem.leftBarButtonItem = button;
@@ -283,9 +298,13 @@
         [items addObject:flexSpace];
     }
 
-    // Right - Action
-    if (_actionButton && !(!hasItems && !self.navigationItem.rightBarButtonItem)) {
+    // Right - Action and comments
+    if ((_actionButton || _commentsButton) && !(!hasItems && !self.navigationItem.rightBarButtonItem)) {
+        // comments
+        [items addObject:_commentsButton];
+        // action
         [items addObject:_actionButton];
+
     } else {
         // We're not showing the toolbar so try and show in top right
         if (_actionButton)
@@ -293,20 +312,22 @@
         [items addObject:fixedSpace];
     }
     
-    // Toolbar visibility
-    [_toolbar setItems:items];
-    BOOL hideToolbar = YES;
-    for (UIBarButtonItem* item in _toolbar.items) {
-        if (item != fixedSpace && item != flexSpace) {
-            hideToolbar = NO;
-            break;
+    if (!_gridController) {
+        // Toolbar visibility
+        [_toolbar setItems:items];
+        BOOL hideToolbar = YES;
+        for (UIBarButtonItem* item in _toolbar.items) {
+            if (item != fixedSpace && item != flexSpace) {
+                hideToolbar = NO;
+                break;
+            }
         }
-    }
-    
-    if (hideToolbar) {
-        [_toolbar removeFromSuperview];
-    } else {
-        //[self.view addSubview:_toolbar];
+        
+        if (hideToolbar) {
+            [_toolbar removeFromSuperview];
+        } else {
+            [self.view addSubview:_toolbar];
+        }
     }
     
     // Update nav
@@ -656,8 +677,6 @@
     if (_gridController) {
         [_gridController.collectionView reloadData];
     }
-
-    _toolbar.hidden = _gridController ? true : false;
 }
 
 - (NSUInteger)numberOfPhotos {
@@ -1079,29 +1098,32 @@
 
 - (void)updateNavigation {
     
-	// Title
     NSUInteger numberOfPhotos = [self numberOfPhotos];
-    if (_gridController) {
-        if (_gridController.selectionMode) {
-            self.title = NSLocalizedString(@"Select Photos", nil);
-        } else {
-            NSString *photosText;
-            if (numberOfPhotos == 1) {
-                photosText = NSLocalizedString(@"photo", @"Used in the context: '1 photo'");
+    
+	// Title
+    if (!_hideTitle) {
+        if (_gridController) {
+            if (_gridController.selectionMode) {
+                self.title = NSLocalizedString(@"Select Photos", nil);
             } else {
-                photosText = NSLocalizedString(@"photos", @"Used in the context: '3 photos'");
+                NSString *photosText;
+                if (numberOfPhotos == 1) {
+                    photosText = NSLocalizedString(@"photo", @"Used in the context: '1 photo'");
+                } else {
+                    photosText = NSLocalizedString(@"photos", @"Used in the context: '3 photos'");
+                }
+                self.title = [NSString stringWithFormat:@"%lu %@", (unsigned long)numberOfPhotos, photosText];
             }
-            self.title = [NSString stringWithFormat:@"%lu %@", (unsigned long)numberOfPhotos, photosText];
-        }
-    } else if (numberOfPhotos > 1) {
-        if ([_delegate respondsToSelector:@selector(photoBrowser:titleForPhotoAtIndex:)]) {
-            self.title = [_delegate photoBrowser:self titleForPhotoAtIndex:_currentPageIndex];
+        } else if (numberOfPhotos > 1) {
+            if ([_delegate respondsToSelector:@selector(photoBrowser:titleForPhotoAtIndex:)]) {
+                self.title = [_delegate photoBrowser:self titleForPhotoAtIndex:_currentPageIndex];
+            } else {
+                self.title = [NSString stringWithFormat:@"%lu %@ %lu", (unsigned long)(_currentPageIndex+1), NSLocalizedString(@"of", @"Used in the context: 'Showing 1 of 3 items'"), (unsigned long)numberOfPhotos];
+            }
         } else {
-            self.title = [NSString stringWithFormat:@"%lu %@ %lu", (unsigned long)(_currentPageIndex+1), NSLocalizedString(@"of", @"Used in the context: 'Showing 1 of 3 items'"), (unsigned long)numberOfPhotos];
+            self.title = nil;
         }
-	} else {
-		self.title = nil;
-	}
+    }
 	
 	// Buttons
 	_previousButton.enabled = (_currentPageIndex > 0);
@@ -1469,6 +1491,17 @@
 }
 
 #pragma mark - Actions
+
+- (void)commentsButtonPressed:(id)sender {
+    id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
+    if ([photo underlyingImage]) {
+        if ([self.delegate respondsToSelector:@selector(photoBrowser:commentsButtonPressedForPhotoAtIndex:)]) {
+            
+            // Let delegate handle things
+            [self.delegate photoBrowser:self commentsButtonPressedForPhotoAtIndex:_currentPageIndex];
+        }
+    }
+}
 
 - (void)actionButtonPressed:(id)sender {
     if (_actionsSheet) {

@@ -33,6 +33,7 @@
 - (NSString *)photoBrowser:(MWPhotoBrowser *)photoBrowser titleForPhotoAtIndex:(NSUInteger)index;
 - (void)photoBrowser:(MWPhotoBrowser *)photoBrowser didDisplayPhotoAtIndex:(NSUInteger)index;
 - (void)photoBrowser:(MWPhotoBrowser *)photoBrowser actionButtonPressedForPhotoAtIndex:(NSUInteger)index;
+- (void)photoBrowser:(MWPhotoBrowser *)photoBrowser commentsButtonPressedForPhotoAtIndex:(NSUInteger)index;
 - (BOOL)photoBrowser:(MWPhotoBrowser *)photoBrowser isPhotoSelectedAtIndex:(NSUInteger)index;
 - (void)photoBrowser:(MWPhotoBrowser *)photoBrowser photoAtIndex:(NSUInteger)index selectedChanged:(BOOL)selected;
 - (void)photoBrowserDidFinishModalPresentation:(MWPhotoBrowser *)photoBrowser;
@@ -45,6 +46,7 @@
 @property (nonatomic) BOOL zoomPhotosToFill;
 @property (nonatomic) BOOL displayNavArrows;
 @property (nonatomic) BOOL displayActionButton;
+@property (nonatomic) BOOL displayCommentsButton;
 @property (nonatomic) BOOL displaySelectionButtons;
 @property (nonatomic) BOOL alwaysShowControls;
 @property (nonatomic) BOOL enableGrid;
@@ -53,6 +55,7 @@
 @property (nonatomic) NSUInteger delayToHideElements;
 @property (nonatomic) BOOL autoHideElements;
 @property (nonatomic) BOOL hideControlsOnSwipe;
+@property (nonatomic) BOOL hideTitle;
 @property (nonatomic, readonly) NSUInteger currentIndex;
 @property (nonatomic) NSUInteger numberOfPhotos;
 
