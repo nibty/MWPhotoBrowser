@@ -685,7 +685,7 @@
 
 - (void) updateData {
 
-    NSUInteger oldCount = [self numberOfPhotos];
+    NSUInteger oldCount = _photoCount == NSNotFound ? 0 : _photoCount;
     NSUInteger newCount = [self.delegate numberOfPhotosInPhotoBrowser:self];
 
     _photoCount = NSNotFound;
@@ -693,7 +693,7 @@
     if (newCount > oldCount) {
         _photoCount = newCount;
 
-        for (NSUInteger i = oldCount; i < newCount; i++) {
+        for (NSUInteger i = oldCount; i < newCount; ++i) {
             [_photos addObject:[NSNull null]];
             [_thumbPhotos addObject:[NSNull null]];
         }
@@ -721,10 +721,15 @@
                 [indexes addObject:[NSIndexPath indexPathForItem:i inSection:0]];
             }
 
-            // Dirty hack to force PSTCollection reload data: accessing private property
+            // Dirty hack to force PSTCollection reload data: accessing
             PSTCollectionViewData* data = [_gridController.collectionView valueForKey:@"_collectionViewData"];
             [data invalidate];
+
+            NSLog(@"updated from %lu to %lu", oldCount, newCount);
         }
+    } else if (newCount == oldCount) {
+        // do nothing? if data updated user should call reloadData() explicitly
+        NSLog(@"update with same photo count: %lu to %lu", oldCount, newCount);
     } else {
         [self reloadData];
     }
