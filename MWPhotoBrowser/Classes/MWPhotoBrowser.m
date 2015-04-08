@@ -11,6 +11,7 @@
 #import "MWPhotoBrowser.h"
 #import "MWPhotoBrowserPrivate.h"
 #import "SDImageCache.h"
+#import "PSTCollectionViewData.h"
 
 #define PADDING                  10
 #define ACTION_SHEET_OLD_ACTIONS 2000
@@ -687,6 +688,8 @@
     NSUInteger oldCount = [self numberOfPhotos];
     NSUInteger newCount = [self.delegate numberOfPhotosInPhotoBrowser:self];
 
+    _photoCount = NSNotFound;
+    
     if (newCount > oldCount) {
         _photoCount = newCount;
 
@@ -712,7 +715,15 @@
         }
 
         if (_gridController) {
-            [_gridController.collectionView reloadData];
+
+            NSMutableArray* indexes = [NSMutableArray array];
+            for(NSUInteger i = oldCount; i < newCount; ++i) {
+                [indexes addObject:[NSIndexPath indexPathForItem:i inSection:0]];
+            }
+
+            // Dirty hack to force PSTCollection reload data: accessing private property
+            PSTCollectionViewData* data = [_gridController.collectionView valueForKey:@"_collectionViewData"];
+            [data invalidate];
         }
     } else {
         [self reloadData];
