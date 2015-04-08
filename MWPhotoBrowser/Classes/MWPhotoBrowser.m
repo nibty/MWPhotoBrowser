@@ -476,7 +476,10 @@
 
 - (void)setNavBarAppearance:(BOOL)animated {
     [self.navigationController setNavigationBarHidden:NO animated:animated];
-    self.navigationController.hidesBarsOnSwipe = NO;
+
+    if ([self.navigationController respondsToSelector:@selector(setHidesBarsOnSwipe:)]) {
+        self.navigationController.hidesBarsOnSwipe = NO;
+    }
 
     UINavigationBar *navBar = self.navigationController.navigationBar;
     
