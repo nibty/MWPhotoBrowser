@@ -679,6 +679,43 @@
     }
 }
 
+- (void) updateData {
+
+    NSUInteger oldCount = [self numberOfPhotos];
+    NSUInteger newCount = [self.delegate numberOfPhotosInPhotoBrowser:self];
+
+    if (newCount > oldCount) {
+        _photoCount = newCount;
+
+        for (NSUInteger i = oldCount; i < newCount; i++) {
+            [_photos addObject:[NSNull null]];
+            [_thumbPhotos addObject:[NSNull null]];
+        }
+
+        // Update current page index
+        if (newCount > 0) {
+            _currentPageIndex = MAX(0, MIN(_currentPageIndex, newCount - 1));
+        } else {
+            _currentPageIndex = 0;
+        }
+
+        // Update layout
+        if ([self isViewLoaded]) {
+            while (_pagingScrollView.subviews.count) {
+                [[_pagingScrollView.subviews lastObject] removeFromSuperview];
+            }
+            [self performLayout];
+            [self.view setNeedsLayout];
+        }
+
+        if (_gridController) {
+            [_gridController.collectionView reloadData];
+        }
+    } else {
+        [self reloadData];
+    }
+}
+
 - (NSUInteger)numberOfPhotos {
     if (_photoCount == NSNotFound) {
         if ([_delegate respondsToSelector:@selector(numberOfPhotosInPhotoBrowser:)]) {
