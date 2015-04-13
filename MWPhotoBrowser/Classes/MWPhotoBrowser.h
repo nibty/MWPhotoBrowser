@@ -58,6 +58,8 @@
 @property (nonatomic) BOOL hideTitle;
 @property (nonatomic, readonly) NSUInteger currentIndex;
 @property (nonatomic) NSUInteger numberOfPhotos;
+@property (nonatomic) UIColor* gridBarColor;
+@property (nonatomic) UIColor* slideShowBarColor;
 
 // Init
 - (id)initWithPhotos:(NSArray *)photosArray  __attribute__((deprecated("Use initWithDelegate: instead"))); // Depreciated

@@ -86,6 +86,9 @@
     _currentGridContentOffset = CGPointMake(0, CGFLOAT_MAX);
     _didSavePreviousStateOfNavBar = NO;
     _hideTitle = YES;
+    _gridBarColor = [UIColor blackColor];
+    _slideShowBarColor = [UIColor blackColor];
+    
     if ([self respondsToSelector:@selector(automaticallyAdjustsScrollViewInsets)]){
         self.automaticallyAdjustsScrollViewInsets = NO;
     }
@@ -390,21 +393,9 @@
         // If the frame is zero then definitely leave it alone
         _leaveStatusBarAlone = YES;
     }
-    BOOL fullScreen = YES;
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_7_0
     if (SYSTEM_VERSION_LESS_THAN(@"7")) fullScreen = self.wantsFullScreenLayout;
 #endif
-    if (!_leaveStatusBarAlone && fullScreen && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
-        _previousStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
-        if (SYSTEM_VERSION_LESS_THAN(@"7")) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:animated];
-#pragma clang diagnostic push
-        } else {
-            [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:animated];
-        }
-    }
     
     // Navigation bar appearance
     if (!_viewIsActive && [self.navigationController.viewControllers objectAtIndex:0] != self) {
@@ -422,7 +413,6 @@
         }
         _viewHasAppearedInitially = YES;
     }
-
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -436,7 +426,6 @@
         
         // Bar state / appearance
         [self restorePreviousNavBarAppearance:animated];
-        
     }
     
     // Controls
@@ -449,13 +438,9 @@
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_7_0
     if (SYSTEM_VERSION_LESS_THAN(@"7")) fullScreen = self.wantsFullScreenLayout;
 #endif
-    if (!_leaveStatusBarAlone && fullScreen && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
-        [[UIApplication sharedApplication] setStatusBarStyle:_previousStatusBarStyle animated:animated];
-    }
     
 	// Super
 	[super viewWillDisappear:animated];
-    
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -478,15 +463,10 @@
 - (void)setNavBarAppearance:(BOOL)animated {
     [self.navigationController setNavigationBarHidden:NO animated:animated];
 
-    if ([self.navigationController respondsToSelector:@selector(setHidesBarsOnSwipe:)]) {
-        self.navigationController.hidesBarsOnSwipe = NO;
-    }
-
     UINavigationBar *navBar = self.navigationController.navigationBar;
     
     navBar.tintColor = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7") ? [UIColor whiteColor] : nil;
     if ([navBar respondsToSelector:@selector(setBarTintColor:)]) {
-        navBar.barTintColor = [UIColor colorWithRed: 100/255.0f green: 162/255.0f blue: 244/255.0f alpha: 0.1f];
         navBar.shadowImage = nil;
     }
     navBar.translucent = YES;
@@ -1252,6 +1232,13 @@
     _gridController.view.frame = self.view.bounds;
     _gridController.view.frame = CGRectOffset(_gridController.view.frame, 0, (self.startOnGrid ? -1 : 1) * self.view.bounds.size.height);
 
+    // use blue bar in grid mode
+    self.navigationController.navigationBar.barTintColor = _gridBarColor;
+    self.navigationController.hidesBarsOnSwipe = YES;
+    UIView *statusBarView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 20)];
+    statusBarView.backgroundColor = _gridBarColor;
+    [_gridController.view addSubview: statusBarView];
+    
     // Stop specific layout being triggered
     _skipNextPagingScrollViewPositioning = YES;
     
@@ -1287,6 +1274,11 @@
     
     if (!_gridController) return;
     
+    // swicth to black navbar for slideshow
+    self.navigationController.navigationBar.barTintColor = _slideShowBarColor;
+    self.navigationController.hidesBarsOnSwipe = NO;
+    self.navigationController.navigationBarHidden = NO;
+
     // Remember previous content offset
     _currentGridContentOffset = _gridController.collectionView.contentOffset;
     
