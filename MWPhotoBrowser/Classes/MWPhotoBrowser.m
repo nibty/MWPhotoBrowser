@@ -1234,7 +1234,9 @@
 
     // use blue bar in grid mode
     self.navigationController.navigationBar.barTintColor = _gridBarColor;
-    self.navigationController.hidesBarsOnSwipe = YES;
+    if ([self.navigationController respondsToSelector:@selector(setHidesBarsOnSwipe:)]) {
+        self.navigationController.hidesBarsOnSwipe = YES;
+    }
     UIView *statusBarView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 20)];
     statusBarView.backgroundColor = _gridBarColor;
     [_gridController.view addSubview: statusBarView];
