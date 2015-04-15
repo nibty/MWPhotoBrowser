@@ -103,7 +103,6 @@
         // Stick with initial
         self.collectionView.contentOffset = currentContentOffset;
     }
-    
 }
 
 - (void)performLayout {
@@ -175,7 +174,7 @@
 
 - (void)collectionView:(PSTCollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     [_browser setCurrentPhotoIndex:indexPath.row];
-    [_browser hideGrid];
+    [_browser loadSlideShow];
 }
 
 - (void)collectionView:(PSTCollectionView *)collectionView didEndDisplayingCell:(PSTCollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {

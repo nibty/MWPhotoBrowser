@@ -74,6 +74,7 @@
     _rotating = NO;
     _viewIsActive = NO;
     _enableGrid = YES;
+    _hideGridButton = YES;
     _startOnGrid = NO;
     _enableSwipeToDismiss = YES;
     _delayToHideElements = 5;
@@ -209,7 +210,7 @@
         [button addTarget:self action:@selector(commentsButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
         _commentsButton = [[UIBarButtonItem alloc] initWithCustomView:button];
     }
-    
+
     // Update
     [self reloadData];
     
@@ -223,6 +224,22 @@
 	// Super
     [super viewDidLoad];
 	
+}
+
+- (NSUInteger)supportedInterfaceOrientations{
+    if (_gridController) {
+        return UIInterfaceOrientationMaskPortrait;
+    } else {
+        return UIInterfaceOrientationMaskAll;
+    }
+}
+
+- (BOOL)shouldAutorotate{
+    if (_gridController) {
+        return NO;
+    } else {
+        return YES;
+    }
 }
 
 - (void)performLayout {
@@ -275,21 +292,15 @@
     NSMutableArray *items = [[NSMutableArray alloc] init];
 
     // Left button - Grid
-    if (_enableGrid) {
+    if (_enableGrid && !_hideGridButton) {
         hasItems = YES;
         NSString *buttonName = @"UIBarButtonItemGrid";
         if (SYSTEM_VERSION_LESS_THAN(@"7")) buttonName = @"UIBarButtonItemGridiOS6";
         [items addObject:[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:[NSString stringWithFormat:@"MWPhotoBrowser.bundle/images/%@.png", buttonName]] style:UIBarButtonItemStylePlain target:self action:@selector(showGridAnimated)]];
-        
-        //UIImage *image = [[UIImage imageNamed:buttonName] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-        //UIBarButtonItem *button = [[UIBarButtonItem alloc] initWithImage:image style:UIBarButtonItemStylePlain target:self action:@selector(showGridAnimated)];
-        //self.navigationItem.leftBarButtonItem = button;
-        
-        //[items addObject:[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:[NSString stringWithFormat:@"MWPhotoBrowser.bundle/images/%@.png", buttonName]] style:UIBarButtonItemStylePlain target:self action:@selector(showGridAnimated)]];
     } else {
         [items addObject:fixedSpace];
     }
-
+    
     // Middle - Nav
     if (_previousButton && _nextButton && numberOfPhotos > 1) {
         hasItems = YES;
@@ -413,6 +424,11 @@
         }
         _viewHasAppearedInitially = YES;
     }
+    
+    if (!_gridController) {
+        self.navigationController.navigationBar.translucent = true;
+        self.navigationController.navigationBar.barTintColor = [UIColor blackColor];
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -434,7 +450,6 @@
     [self setControlsHidden:NO animated:NO permanent:YES];
     
     // Status bar
-    BOOL fullScreen = YES;
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_7_0
     if (SYSTEM_VERSION_LESS_THAN(@"7")) fullScreen = self.wantsFullScreenLayout;
 #endif
@@ -579,10 +594,6 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
     return YES;
-}
-
-- (NSUInteger)supportedInterfaceOrientations {
-    return UIInterfaceOrientationMaskAll;
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
@@ -1223,7 +1234,7 @@
 - (void)showGrid:(BOOL)animated {
 
     if (_gridController) return;
-    
+
     // Init grid controller
     _gridController = [[MWGridViewController alloc] init];
     _gridController.initialContentOffset = _currentGridContentOffset;
@@ -1232,11 +1243,8 @@
     _gridController.view.frame = self.view.bounds;
     _gridController.view.frame = CGRectOffset(_gridController.view.frame, 0, (self.startOnGrid ? -1 : 1) * self.view.bounds.size.height);
 
-    // use blue bar in grid mode
-    self.navigationController.navigationBar.barTintColor = _gridBarColor;
-    if ([self.navigationController respondsToSelector:@selector(setHidesBarsOnSwipe:)]) {
-        self.navigationController.hidesBarsOnSwipe = YES;
-    }
+    UIView *statusBarColor = [self.parentViewController.view viewWithTag:88];
+    statusBarColor.hidden = YES;
     UIView *statusBarView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 20)];
     statusBarView.backgroundColor = _gridBarColor;
     [_gridController.view addSubview: statusBarView];
@@ -1272,15 +1280,33 @@
     
 }
 
+-(void)loadSlideShow {
+    if ([self.delegate respondsToSelector:@selector(photoBrowser:showImageForPhotoAtIndex:)]) {
+        
+        // Let delegate handle things
+        [self.delegate photoBrowser:self showImageForPhotoAtIndex:_currentPageIndex];
+    }
+}
+
 - (void)hideGrid {
     
     if (!_gridController) return;
-    
-    // swicth to black navbar for slideshow
-    self.navigationController.navigationBar.barTintColor = _slideShowBarColor;
-    self.navigationController.hidesBarsOnSwipe = NO;
-    self.navigationController.navigationBarHidden = NO;
 
+    // We're first on stack so show done button
+    _doneButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", nil) style:UIBarButtonItemStylePlain target:self action:@selector(doneButtonPressed:)];
+    // Set appearance
+    if ([UIBarButtonItem respondsToSelector:@selector(appearance)]) {
+        [_doneButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
+        [_doneButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsLandscapePhone];
+        [_doneButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
+        [_doneButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsLandscapePhone];
+        [_doneButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateNormal];
+        [_doneButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateHighlighted];
+    }
+    
+    [self.navigationItem setHidesBackButton:YES animated:NO];
+    self.navigationItem.rightBarButtonItem = _doneButton;
+    
     // Remember previous content offset
     _currentGridContentOffset = _gridController.collectionView.contentOffset;
     
@@ -1520,6 +1546,7 @@
 - (void)doneButtonPressed:(id)sender {
     // Only if we're modal and there's a done button
     if (_doneButton) {
+
         // See if we actually just want to show/hide grid
         if (self.enableGrid) {
             if (self.startOnGrid && !_gridController) {
@@ -1530,11 +1557,14 @@
                 return;
             }
         }
+        
         // Dismiss view controller
         if ([_delegate respondsToSelector:@selector(photoBrowserDidFinishModalPresentation:)]) {
             // Call delegate method and let them dismiss us
             [_delegate photoBrowserDidFinishModalPresentation:self];
         } else  {
+            //[self.navigationController popViewControllerAnimated:YES];
+
             [self dismissViewControllerAnimated:YES completion:nil];
         }
     }

@@ -66,7 +66,7 @@
     BOOL _skipNextPagingScrollViewPositioning;
     BOOL _viewHasAppearedInitially;
     CGPoint _currentGridContentOffset;
-    
+    UIBarButtonItem *_tempBackButton;
 }
 
 // Properties
@@ -109,6 +109,7 @@
 // Grid
 - (void)showGrid:(BOOL)animated;
 - (void)hideGrid;
+- (void)loadSlideShow;
 
 // Controls
 - (void)cancelControlHiding;
