@@ -67,7 +67,7 @@
     _currentPageIndex = 0;
     _previousPageIndex = NSUIntegerMax;
     _displayActionButton = YES;
-    _displayCommentsButton = YES;
+    _displayCommentsButton = NO;
     _displayNavArrows = NO;
     _zoomPhotosToFill = YES;
     _performingLayout = NO; // Reset on view did appear
@@ -315,10 +315,16 @@
 
     // Right - Action and comments
     if ((_actionButton || _commentsButton) && !(!hasItems && !self.navigationItem.rightBarButtonItem)) {
-        // comments
-        [items addObject:_commentsButton];
-        // action
-        [items addObject:_actionButton];
+        
+        if (_commentsButton) {
+            // comments
+            [items addObject:_commentsButton];
+        }
+        
+        if (_actionButton) {
+            // action
+            [items addObject:_actionButton];
+        }
 
     } else {
         // We're not showing the toolbar so try and show in top right
