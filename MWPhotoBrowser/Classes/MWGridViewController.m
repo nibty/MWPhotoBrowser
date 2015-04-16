@@ -82,6 +82,7 @@
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
     
+    /**
     // Move to previous content offset
     if (_initialContentOffset.y != CGFLOAT_MAX) {
         self.collectionView.contentOffset = _initialContentOffset;
@@ -103,6 +104,7 @@
         // Stick with initial
         self.collectionView.contentOffset = currentContentOffset;
     }
+     **/
 }
 
 - (void)performLayout {
@@ -111,7 +113,7 @@
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_7_0
     if (SYSTEM_VERSION_LESS_THAN(@"7") && !self.browser.wantsFullScreenLayout) yAdjust = -20;
 #endif
-    self.collectionView.contentInset = UIEdgeInsetsMake(navBar.frame.origin.y + navBar.frame.size.height + [self getGutter] + yAdjust, 0, 0, 0);
+    //self.collectionView.contentInset = UIEdgeInsetsMake(navBar.frame.origin.y + navBar.frame.size.height + [self getGutter] + yAdjust, 0, 0, 0);
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {

@@ -12,6 +12,7 @@
 #import "MWPhotoBrowserPrivate.h"
 #import "SDImageCache.h"
 #import "PSTCollectionViewData.h"
+#import "UIViewController+ScrollingNavbar.h"
 
 #define PADDING                  10
 #define ACTION_SHEET_OLD_ACTIONS 2000
@@ -220,10 +221,9 @@
         swipeGesture.direction = UISwipeGestureRecognizerDirectionDown | UISwipeGestureRecognizerDirectionUp;
         [self.view addGestureRecognizer:swipeGesture];
     }
-    
+
 	// Super
     [super viewDidLoad];
-	
 }
 
 - (NSUInteger)supportedInterfaceOrientations{
@@ -460,6 +460,8 @@
     if (SYSTEM_VERSION_LESS_THAN(@"7")) fullScreen = self.wantsFullScreenLayout;
 #endif
     
+    [self showNavbar];
+    
 	// Super
 	[super viewWillDisappear:animated];
 }
@@ -487,10 +489,7 @@
     UINavigationBar *navBar = self.navigationController.navigationBar;
     
     navBar.tintColor = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7") ? [UIColor whiteColor] : nil;
-    if ([navBar respondsToSelector:@selector(setBarTintColor:)]) {
-        navBar.shadowImage = nil;
-    }
-    navBar.translucent = YES;
+    navBar.translucent = NO;
     navBar.barStyle = UIBarStyleBlackTranslucent;
     if ([[UINavigationBar class] respondsToSelector:@selector(appearance)]) {
         [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
@@ -1248,12 +1247,6 @@
     _gridController.selectionMode = _displaySelectionButtons;
     _gridController.view.frame = self.view.bounds;
     _gridController.view.frame = CGRectOffset(_gridController.view.frame, 0, (self.startOnGrid ? -1 : 1) * self.view.bounds.size.height);
-
-    UIView *statusBarColor = [self.parentViewController.view viewWithTag:88];
-    statusBarColor.hidden = YES;
-    UIView *statusBarView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 20)];
-    statusBarView.backgroundColor = _gridBarColor;
-    [_gridController.view addSubview: statusBarView];
     
     // Stop specific layout being triggered
     _skipNextPagingScrollViewPositioning = YES;
@@ -1282,6 +1275,8 @@
         _pagingScrollView.frame = newPagingFrame;
     } completion:^(BOOL finished) {
         [_gridController didMoveToParentViewController:self];
+        [self followScrollView:self.view];
+        [self setUseSuperview:NO];
     }];
     
 }
