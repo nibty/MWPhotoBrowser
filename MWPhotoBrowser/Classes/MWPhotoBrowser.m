@@ -1276,7 +1276,7 @@
     } completion:^(BOOL finished) {
         [_gridController didMoveToParentViewController:self];
         [self followScrollView:self.view];
-        [self setUseSuperview:NO];
+        [self setShouldScrollWhenContentFits:YES];
     }];
     
 }
