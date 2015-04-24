@@ -720,12 +720,9 @@
             // Dirty hack to force PSTCollection reload data: accessing
             PSTCollectionViewData* data = [_gridController.collectionView valueForKey:@"_collectionViewData"];
             [data invalidate];
-
-            NSLog(@"updated from %lu to %lu", oldCount, newCount);
         }
     } else if (newCount == oldCount) {
         // do nothing? if data updated user should call reloadData() explicitly
-        NSLog(@"update with same photo count: %lu to %lu", oldCount, newCount);
     } else {
         [self reloadData];
     }
