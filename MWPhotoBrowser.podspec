@@ -36,8 +36,10 @@ Pod::Spec.new do |s|
     s.resources = 'MWPhotoBrowser/MWPhotoBrowser.bundle'
     s.requires_arc = true
     s.frameworks = 'MessageUI', 'ImageIO', 'QuartzCore', 'AssetsLibrary', 'MapKit'
+    s.framework = 'MWPhotoBrowser'
     s.dependency 'SDWebImage', '~> 3.7.2'
     s.dependency 'MBProgressHUD', '~> 0.8'
     s.dependency 'DACircularProgress'
     s.dependency 'PSTCollectionView', '~> 1.2'
 end
+
