@@ -33,6 +33,7 @@ Pod::Spec.new do |s|
     }
     s.platform = :ios, '5.1.1'
     s.source_files = 'MWPhotoBrowser/Classes/*.{h,m}'
+    s.public_header_files = 'MWPhotoBrowser/Classes/*.h'
     s.resources = 'MWPhotoBrowser/MWPhotoBrowser.bundle'
     s.requires_arc = true
     s.frameworks = 'MessageUI', 'ImageIO', 'QuartzCore', 'AssetsLibrary', 'MapKit'
