@@ -44,8 +44,8 @@
         _selectedButton.contentMode = UIViewContentModeTopRight;
         _selectedButton.adjustsImageWhenHighlighted = NO;
         [_selectedButton setImage:nil forState:UIControlStateNormal];
-        [_selectedButton setImage:[UIImage imageNamed:@"MWPhotoBrowser.bundle/images/ImageSelectedSmallOff.png"] forState:UIControlStateNormal];
-        [_selectedButton setImage:[UIImage imageNamed:@"MWPhotoBrowser.bundle/images/ImageSelectedSmallOn.png"] forState:UIControlStateSelected];
+        [_selectedButton setImage:[MWPhotoBrowser loadImage:@"ImageSelectedSmallOff"] forState:UIControlStateNormal];
+        [_selectedButton setImage:[MWPhotoBrowser loadImage:@"ImageSelectedSmallOn"] forState:UIControlStateSelected];
         [_selectedButton addTarget:self action:@selector(selectionButtonPressed) forControlEvents:UIControlEventTouchDown];
         _selectedButton.hidden = YES;
         _selectedButton.frame = CGRectMake(0, 0, 44, 44);
@@ -175,7 +175,7 @@
 - (void)showImageFailure {
     if (!_loadingError) {
         _loadingError = [UIImageView new];
-        _loadingError.image = [UIImage imageNamed:@"MWPhotoBrowser.bundle/images/ImageError.png"];
+        _loadingError.image = [MWPhotoBrowser loadImage:@"ImageError"];
         _loadingError.userInteractionEnabled = NO;
         [_loadingError sizeToFit];
         [self addSubview:_loadingError];
