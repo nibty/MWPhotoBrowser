@@ -51,6 +51,7 @@
 @property (nonatomic) BOOL displaySelectionButtons;
 @property (nonatomic) BOOL alwaysShowControls;
 @property (nonatomic) BOOL enableGrid;
+@property (nonatomic) BOOL enableSaveButton;
 @property (nonatomic) BOOL hideGridButton;
 @property (nonatomic) BOOL enableSwipeToDismiss;
 @property (nonatomic) BOOL startOnGrid;

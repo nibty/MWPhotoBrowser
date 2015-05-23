@@ -84,6 +84,7 @@
     _rotating = NO;
     _viewIsActive = NO;
     _enableGrid = YES;
+    _enableSaveButton = YES;
     _hideGridButton = YES;
     _startOnGrid = NO;
     _enableSwipeToDismiss = YES;
@@ -299,6 +300,12 @@
     fixedSpace.width = 32; // To balance action button
     UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
     NSMutableArray *items = [[NSMutableArray alloc] init];
+
+    if (_enableSaveButton) {
+        UIImage* image = [MWPhotoBrowser loadImage:@"UIBarButtonItemShare"];
+        UIImage* flippedImage = [UIImage imageWithCGImage:image.CGImage scale:image.scale orientation:UIImageOrientationLeft];
+        [items addObject:[[UIBarButtonItem alloc] initWithImage:flippedImage style:UIBarButtonItemStylePlain target:self action:@selector(saveCurrentImage)]];
+    }
 
     // Left button - Grid
     if (_enableGrid && !_hideGridButton) {
@@ -1233,6 +1240,22 @@
     }
     if (index != NSUIntegerMax) {
         [self setPhotoSelected:selectedButton.selected atIndex:index];
+    }
+}
+
+- (void)saveCurrentImage {
+    UIImage* image = [[ self photoAtIndex: self.currentIndex ] underlyingImage];
+    if (image != nil) {
+        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
+
+        MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+        hud.mode = MBProgressHUDModeText;
+        hud.labelText = @"Photo saved";
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [MBProgressHUD hideHUDForView:self.view animated:YES];
+        });
+        
     }
 }
 
