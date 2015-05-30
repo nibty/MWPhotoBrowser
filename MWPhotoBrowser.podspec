@@ -31,11 +31,11 @@ Pod::Spec.new do |s|
         :git => 'https://github.com/mwaterfall/MWPhotoBrowser.git',
         :tag => '1.4.1'
     }
-    s.platform = :ios, '5.1.1'
+    s.platform = :ios, '8.0'
     s.source_files = 'MWPhotoBrowser/Classes/*.{h,m}'
     s.public_header_files = 'MWPhotoBrowser/Classes/*.h'
     s.header_mappings_dir = 'MWPhotoBrowser/Classes'
-    s.resource_bundles = {'MWPhotoBrowser' => 'MWPhotoBrowser/MWPhotoBrowser.bundle' }
+    s.resources = 'MWPhotoBrowser/MWPhotoBrowser.bundle'
     s.requires_arc = true
     s.frameworks = 'MessageUI', 'ImageIO', 'QuartzCore', 'AssetsLibrary', 'MapKit'
     s.dependency 'SDWebImage', '~> 3.7.2'
