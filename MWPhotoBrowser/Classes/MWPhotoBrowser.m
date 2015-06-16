@@ -302,9 +302,8 @@
     NSMutableArray *items = [[NSMutableArray alloc] init];
 
     if (_enableSaveButton) {
-        UIImage* image = [MWPhotoBrowser loadImage:@"UIBarButtonItemShare"];
-        UIImage* flippedImage = [UIImage imageWithCGImage:image.CGImage scale:image.scale orientation:UIImageOrientationLeft];
-        [items addObject:[[UIBarButtonItem alloc] initWithImage:flippedImage style:UIBarButtonItemStylePlain target:self action:@selector(saveCurrentImage)]];
+        UIImage* image = [MWPhotoBrowser loadImage:@"UIBarButtonItemSave"];
+        [items addObject:[[UIBarButtonItem alloc] initWithImage:image style:UIBarButtonItemStylePlain target:self action:@selector(saveCurrentImage)]];
     }
 
     // Left button - Grid
