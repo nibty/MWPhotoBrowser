@@ -9,13 +9,16 @@
 #import "MWCommon.h"
 #import "MWCaptionView.h"
 #import "MWPhoto.h"
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "UIImageView+Letters.h"
 
 static const CGFloat labelPadding = 10;
 
 // Private
 @interface MWCaptionView () {
     id <MWPhoto> _photo;
-    UILabel *_label;    
+    UILabel *_label;
+    UIImageView* _avatar;
 }
 @end
 
@@ -47,6 +50,7 @@ static const CGFloat labelPadding = 10;
         //self.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin;
 
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin;
+        [self setupAvatar];
         [self setupCaption];
     }
     return self;
@@ -72,9 +76,65 @@ static const CGFloat labelPadding = 10;
     return CGSizeMake(size.width, textSize.height + labelPadding * 2);
 }
 
+-(void)setupAvatar {
+
+    if ([_photo respondsToSelector:@selector(getAvatarUrl)]) {
+
+        CGFloat size = MIN(32, self.bounds.size.height - labelPadding);
+        _avatar = [[UIImageView alloc] initWithFrame:CGRectIntegral(CGRectMake(labelPadding, (self.bounds.size.height - size) / 2, size, size))];
+        _avatar.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
+        _avatar.opaque = NO;
+
+        [[_avatar layer] setBorderColor:[[UIColor whiteColor] CGColor]];
+        [[_avatar layer] setBorderWidth:0.3];
+        [[_avatar layer] setCornerRadius: [_avatar bounds].size.width / 2];
+        [_avatar setContentMode: UIViewContentModeScaleAspectFit];
+        [_avatar setClipsToBounds:YES];
+        [self addSubview: _avatar];
+
+        id avatarUrl = [_photo performSelector:@selector(getAvatarUrl)];
+
+        if (avatarUrl != nil) {
+            [_avatar sd_setImageWithURL:avatarUrl];
+        } else if ([_photo respondsToSelector:@selector(getNickname)] && [_photo respondsToSelector:@selector(getAvatarColor)]) {
+            id nickname = [_photo performSelector:@selector(getNickname)];
+            if (nickname == nil) {
+                if ([_photo respondsToSelector:@selector(getAnonymousAvatar)]) {
+                    id image = [_photo performSelector:@selector(getAnonymousAvatar)];
+                    [_avatar setImage:image];
+                }
+            } else {
+                id color = [_photo performSelector:@selector(getAvatarColor)];
+                if (color != nil) {
+                    [_avatar setImageWithString:nickname color:color circular:true];
+                }
+            }
+        }
+
+
+        if ([_photo respondsToSelector:@selector(showProfile)]) {
+            UITapGestureRecognizer* tap = [[UITapGestureRecognizer alloc] initWithTarget:_photo action:@selector(showProfile)];
+            [tap setNumberOfTapsRequired:1];
+            [tap setNumberOfTouchesRequired:1];
+            [self setUserInteractionEnabled:YES];
+            [_avatar setUserInteractionEnabled:YES];
+            [_avatar addGestureRecognizer:tap];
+        }
+        
+    }
+
+}
+
 - (void)setupCaption {
-    _label = [[UILabel alloc] initWithFrame:CGRectIntegral(CGRectMake(labelPadding, 0,
-                                                       self.bounds.size.width-labelPadding*2,
+
+    int avatarPadding = 0;
+
+    if (_avatar != nil) {
+        avatarPadding += [_avatar bounds].size.width + labelPadding;
+    }
+
+    _label = [[UILabel alloc] initWithFrame:CGRectIntegral(CGRectMake(labelPadding + avatarPadding, 0,
+                                                       self.bounds.size.width - labelPadding * 2 - avatarPadding,
                                                        self.bounds.size.height))];
     _label.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     _label.opaque = NO;
