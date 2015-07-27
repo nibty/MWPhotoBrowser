@@ -700,8 +700,10 @@
     NSUInteger newCount = [self.delegate numberOfPhotosInPhotoBrowser:self];
 
     _photoCount = NSNotFound;
-    
-    if (newCount > oldCount) {
+
+    if (oldCount == 0) {
+        [self reloadData];
+    } else if (newCount > oldCount) {
         _photoCount = newCount;
 
         for (NSUInteger i = oldCount; i < newCount; ++i) {
