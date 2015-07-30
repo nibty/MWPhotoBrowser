@@ -173,19 +173,7 @@
 }
 
 - (void)showImageFailure {
-    if (!_loadingError) {
-        _loadingError = [UIImageView new];
-        _loadingError.image = [MWPhotoBrowser loadImage:@"ImageError"];
-        _loadingError.userInteractionEnabled = NO;
-        [_loadingError sizeToFit];
-        [self addSubview:_loadingError];
-    }
     [self hideLoadingIndicator];
-    _imageView.image = nil;
-    _loadingError.frame = CGRectMake(floorf((self.bounds.size.width - _loadingError.frame.size.width) / 2.),
-                                     floorf((self.bounds.size.height - _loadingError.frame.size.height) / 2),
-                                     _loadingError.frame.size.width,
-                                     _loadingError.frame.size.height);
 }
 
 - (void)hideImageFailure {
