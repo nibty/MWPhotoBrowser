@@ -737,6 +737,7 @@
             // Dirty hack to force PSTCollection reload data: accessing
             PSTCollectionViewData* data = [_gridController.collectionView valueForKey:@"_collectionViewData"];
             [data invalidate];
+            [_gridController.collectionView setNeedsLayout];
         }
     } else if (newCount == oldCount) {
         // do nothing? if data updated user should call reloadData() explicitly
